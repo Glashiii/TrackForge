@@ -1,0 +1,4 @@
+rootProject.name = 'TaskForge'
+
+include 'spring-auth-ms'
+include 'project-core-service'
