@@ -1,7 +1,7 @@
 package ru.glashiii.springauthms.dto;
 
 public record UserMeResponse(
-        Integer id,
+        Long id,
         String email,
         String username,
         String roles
