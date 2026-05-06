@@ -3,7 +3,6 @@ package ru.glashiii.projectcoreservice.repositories;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import ru.glashiii.projectcoreservice.dto.ProjectResponse;
 import ru.glashiii.projectcoreservice.entities.Project;
 
 import java.util.List;

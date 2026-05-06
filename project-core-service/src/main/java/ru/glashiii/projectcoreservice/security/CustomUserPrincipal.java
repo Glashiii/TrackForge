@@ -2,12 +2,10 @@ package ru.glashiii.projectcoreservice.security;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 
 @AllArgsConstructor
 public class CustomUserPrincipal implements UserDetails {

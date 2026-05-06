@@ -1,6 +1,5 @@
 package ru.glashiii.projectcoreservice.dto;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.glashiii.projectcoreservice.entities.Project;
