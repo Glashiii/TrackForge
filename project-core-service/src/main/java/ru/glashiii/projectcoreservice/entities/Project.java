@@ -1,8 +1,6 @@
 package ru.glashiii.projectcoreservice.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,20 +13,23 @@ import java.time.Instant;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "projects")
 public class Project {
     @Id
-    public Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false)
-    public String name;
+    private String name;
 
-    public String description;
+    @Column(length = 255)
+    private String description;
 
     @Column(nullable = false, unique = true, length = 10)
-    public String key;
+    private String key;
 
     @Column(nullable = false)
-    public Long ownerId;
+    private Long ownerId;
 
     private Instant createdAt;
 
