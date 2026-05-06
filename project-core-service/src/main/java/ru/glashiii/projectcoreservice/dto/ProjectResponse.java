@@ -23,8 +23,8 @@ public class ProjectResponse {
         return new ProjectResponse(
                 project.getId(),
                 project.getName(),
-                project.getKey(),
                 project.getDescription(),
+                project.getKey(),
                 project.getOwnerId(),
                 project.getCreatedAt(),
                 project.getUpdatedAt()
