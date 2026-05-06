@@ -40,16 +40,16 @@ public class ProjectService {
                 .ownerId(currentUserId)
                 .build();
 
+        Project savedProject = projectRepository.save(projectToCreate);
+
         ProjectMember ownerMember = ProjectMember.builder()
-                .projectId(projectToCreate.getId())
+                .projectId(savedProject.getId())
                 .userId(currentUserId)
                 .role(ProjectRole.OWNER)
                 .joinedAt(now)
                 .build();
 
         projectMemberRepository.save(ownerMember);
-
-        Project savedProject = projectRepository.save(projectToCreate);
 
 
         return ProjectResponse.from(savedProject);
