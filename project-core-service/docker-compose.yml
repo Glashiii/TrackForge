@@ -1,0 +1,20 @@
+services:
+  project-core-postgres:
+    image: postgres:17
+    container_name: project-core-postgres
+    environment:
+      POSTGRES_DB: project_core_db
+      POSTGRES_USER: project_core_user
+      POSTGRES_PASSWORD: project_core_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - project-core-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U project_core_user -d project_core_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  project-core-postgres-data:
