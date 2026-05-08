@@ -1,15 +1,16 @@
 package ru.glashiii.projectcoreservice.services;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.glashiii.projectcoreservice.dto.ProjectCreateRequest;
 import ru.glashiii.projectcoreservice.dto.ProjectResponse;
 import ru.glashiii.projectcoreservice.entities.Project;
 import ru.glashiii.projectcoreservice.entities.ProjectMember;
 import ru.glashiii.projectcoreservice.entities.ProjectRole;
 import ru.glashiii.projectcoreservice.exceptions.DuplicateProjectKeyException;
+import ru.glashiii.projectcoreservice.exceptions.ProjectNotFoundException;
 import ru.glashiii.projectcoreservice.repositories.ProjectMemberRepository;
 import ru.glashiii.projectcoreservice.repositories.ProjectRepository;
 
@@ -23,11 +24,22 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final ProjectMemberRepository projectMemberRepository;
 
+    @Transactional(readOnly = true)
     public List<ProjectResponse> getMyProjects(Long currentUserId) {
         return projectRepository.findAllAvailableForUser(currentUserId)
                 .stream()
                 .map(ProjectResponse::from)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public ProjectResponse getProjectById(Long projectId, Long currentUserId) {
+        if (!projectMemberRepository.existsByProjectIdAndUserId(projectId,currentUserId)){
+            throw new ProjectNotFoundException(projectId);
+        }
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        return ProjectResponse.from(project);
     }
 
     @Transactional
@@ -47,21 +59,27 @@ public class ProjectService {
                 .ownerId(currentUserId)
                 .build();
 
+        Project savedProject;
+
         try {
-            Project savedProject = projectRepository.save(projectToCreate);
+            savedProject = projectRepository.saveAndFlush(projectToCreate);
 
-            ProjectMember ownerMember = ProjectMember.builder()
-                    .projectId(savedProject.getId())
-                    .userId(currentUserId)
-                    .role(ProjectRole.OWNER)
-                    .joinedAt(now)
-                    .build();
 
-            projectMemberRepository.save(ownerMember);
-
-            return ProjectResponse.from(savedProject);
         } catch (DataIntegrityViolationException ex) {
             throw new DuplicateProjectKeyException(projectKey);
         }
+
+        ProjectMember ownerMember = ProjectMember.builder()
+                .projectId(savedProject.getId())
+                .userId(currentUserId)
+                .role(ProjectRole.OWNER)
+                .joinedAt(now)
+                .build();
+
+        projectMemberRepository.save(ownerMember);
+
+        return ProjectResponse.from(savedProject);
     }
+
+
 }

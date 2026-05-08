@@ -29,6 +29,15 @@ public class ProjectController {
         return ResponseEntity.ok(projects);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ProjectResponse> getProjectById(@PathVariable Long id){
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+
+        ProjectResponse pr = projectService.getProjectById(id, currentUserId);
+
+        return ResponseEntity.ok(pr);
+    }
+
     @PostMapping
     public ResponseEntity<ProjectResponse> createProject(@Valid @RequestBody ProjectCreateRequest projectCreateRequest) {
         Long currentUserId = currentUserProvider.getCurrentUserId();

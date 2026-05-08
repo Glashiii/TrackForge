@@ -1,6 +1,7 @@
 package ru.glashiii.projectcoreservice.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -14,6 +15,8 @@ public class ProjectCreateRequest {
     private String description;
 
     @NotBlank
+    @Size(max = 10)
+    @Pattern(regexp = "^[A-Z][A-Z0-9]{1,9}$")
     private String key;
 
 }
