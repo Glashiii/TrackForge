@@ -7,6 +7,7 @@ import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.glashiii.projectcoreservice.exceptions.DuplicateProjectKeyException;
+import ru.glashiii.projectcoreservice.exceptions.ProjectNotFoundException;
 import ru.glashiii.projectcoreservice.exceptions.UnauthorizedException;
 
 @RestControllerAdvice
@@ -27,5 +28,17 @@ public class GlobalExceptionHandler {
         problem.setProperty("code", "PROJECT_KEY_ALREADY_EXISTS");
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+    }
+
+    @ExceptionHandler(ProjectNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleProjectNotFound(ProjectNotFoundException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage()
+        );
+        problem.setTitle("Project not found");
+        problem.setProperty("code", "PROJECT_NOT_FOUND");
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
     }
 }
