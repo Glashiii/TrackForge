@@ -11,7 +11,11 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "projects")
+// TODO other unique constraints
+@Table(name = "projects",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_projects_key", columnNames = "key")
+        })
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +27,7 @@ public class Project {
     @Column(length = 255)
     private String description;
 
-    @Column(nullable = false, unique = true, length = 10)
+    @Column(nullable = false, length = 10)
     private String key;
 
     @Column(nullable = false)

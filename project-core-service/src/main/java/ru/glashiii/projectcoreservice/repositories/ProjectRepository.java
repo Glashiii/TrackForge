@@ -15,4 +15,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
         order by p.createdAt desc
        \s""")
     List<Project> findAllAvailableForUser(@Param("userId") Long userId);
+
+    boolean existsByKey(String key);
 }

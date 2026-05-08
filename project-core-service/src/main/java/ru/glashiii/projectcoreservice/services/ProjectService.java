@@ -2,12 +2,14 @@ package ru.glashiii.projectcoreservice.services;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.glashiii.projectcoreservice.dto.ProjectCreateRequest;
 import ru.glashiii.projectcoreservice.dto.ProjectResponse;
 import ru.glashiii.projectcoreservice.entities.Project;
 import ru.glashiii.projectcoreservice.entities.ProjectMember;
 import ru.glashiii.projectcoreservice.entities.ProjectRole;
+import ru.glashiii.projectcoreservice.exceptions.DuplicateProjectKeyException;
 import ru.glashiii.projectcoreservice.repositories.ProjectMemberRepository;
 import ru.glashiii.projectcoreservice.repositories.ProjectRepository;
 
@@ -30,6 +32,11 @@ public class ProjectService {
 
     @Transactional
     public ProjectResponse createProject(ProjectCreateRequest projectCreateRequest,  Long currentUserId) {
+        String projectKey = projectCreateRequest.getKey();
+        if (projectRepository.existsByKey(projectKey)){
+            throw new DuplicateProjectKeyException(projectKey);
+        }
+
         Instant now = Instant.now();
         Project projectToCreate = Project.builder()
                 .name(projectCreateRequest.getName())
@@ -40,18 +47,21 @@ public class ProjectService {
                 .ownerId(currentUserId)
                 .build();
 
-        Project savedProject = projectRepository.save(projectToCreate);
+        try {
+            Project savedProject = projectRepository.save(projectToCreate);
 
-        ProjectMember ownerMember = ProjectMember.builder()
-                .projectId(savedProject.getId())
-                .userId(currentUserId)
-                .role(ProjectRole.OWNER)
-                .joinedAt(now)
-                .build();
+            ProjectMember ownerMember = ProjectMember.builder()
+                    .projectId(savedProject.getId())
+                    .userId(currentUserId)
+                    .role(ProjectRole.OWNER)
+                    .joinedAt(now)
+                    .build();
 
-        projectMemberRepository.save(ownerMember);
+            projectMemberRepository.save(ownerMember);
 
-
-        return ProjectResponse.from(savedProject);
+            return ProjectResponse.from(savedProject);
+        } catch (DataIntegrityViolationException ex) {
+            throw new DuplicateProjectKeyException(projectKey);
+        }
     }
 }
