@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.glashiii.projectcoreservice.dto.ProjectCreateRequest;
 import ru.glashiii.projectcoreservice.dto.ProjectResponse;
+import ru.glashiii.projectcoreservice.dto.ProjectUpdateRequest;
 import ru.glashiii.projectcoreservice.security.CurrentUserProvider;
 import ru.glashiii.projectcoreservice.services.ProjectService;
 
@@ -43,5 +44,12 @@ public class ProjectController {
         Long currentUserId = currentUserProvider.getCurrentUserId();
         ProjectResponse response = projectService.createProject(projectCreateRequest, currentUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ProjectResponse> updateProject(@PathVariable Long id, @Valid @RequestBody ProjectUpdateRequest projectUpdateRequest) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        ProjectResponse response = projectService.updateProject(id, projectUpdateRequest, currentUserId);
+        return ResponseEntity.ok(response);
     }
 }

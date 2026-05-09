@@ -6,9 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.glashiii.projectcoreservice.exceptions.DuplicateProjectKeyException;
-import ru.glashiii.projectcoreservice.exceptions.ProjectNotFoundException;
-import ru.glashiii.projectcoreservice.exceptions.UnauthorizedException;
+import ru.glashiii.projectcoreservice.exceptions.*;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -40,5 +38,29 @@ public class GlobalExceptionHandler {
         problem.setProperty("code", "PROJECT_NOT_FOUND");
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
+    }
+
+    @ExceptionHandler(ProjectAccessDeniedException.class)
+    public ResponseEntity<ProblemDetail> handleProjectAccessDenied(ProjectAccessDeniedException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN,
+                ex.getMessage()
+        );
+        problem.setTitle("Project access denied");
+        problem.setProperty("code", "PROJECT_ACCESS_DENIED");
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problem);
+    }
+
+    @ExceptionHandler(InvalidRequestDataException.class)
+    public ResponseEntity<ProblemDetail> handleInvalidRequestData(InvalidRequestDataException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage()
+        );
+        problem.setTitle("Invalid request data");
+        problem.setProperty("code", "INVALID_REQUEST");
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
     }
 }

@@ -6,10 +6,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.glashiii.projectcoreservice.dto.ProjectCreateRequest;
 import ru.glashiii.projectcoreservice.dto.ProjectResponse;
+import ru.glashiii.projectcoreservice.dto.ProjectUpdateRequest;
 import ru.glashiii.projectcoreservice.entities.Project;
 import ru.glashiii.projectcoreservice.entities.ProjectMember;
 import ru.glashiii.projectcoreservice.entities.ProjectRole;
 import ru.glashiii.projectcoreservice.exceptions.DuplicateProjectKeyException;
+import ru.glashiii.projectcoreservice.exceptions.InvalidRequestDataException;
+import ru.glashiii.projectcoreservice.exceptions.ProjectAccessDeniedException;
 import ru.glashiii.projectcoreservice.exceptions.ProjectNotFoundException;
 import ru.glashiii.projectcoreservice.repositories.ProjectMemberRepository;
 import ru.glashiii.projectcoreservice.repositories.ProjectRepository;
@@ -34,7 +37,7 @@ public class ProjectService {
 
     @Transactional(readOnly = true)
     public ProjectResponse getProjectById(Long projectId, Long currentUserId) {
-        if (!projectMemberRepository.existsByProjectIdAndUserId(projectId,currentUserId)){
+        if (!projectMemberRepository.existsByProjectIdAndUserId(projectId, currentUserId)) {
             throw new ProjectNotFoundException(projectId);
         }
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
@@ -43,9 +46,9 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectResponse createProject(ProjectCreateRequest projectCreateRequest,  Long currentUserId) {
+    public ProjectResponse createProject(ProjectCreateRequest projectCreateRequest, Long currentUserId) {
         String projectKey = projectCreateRequest.getKey();
-        if (projectRepository.existsByKey(projectKey)){
+        if (projectRepository.existsByKey(projectKey)) {
             throw new DuplicateProjectKeyException(projectKey);
         }
 
@@ -81,5 +84,33 @@ public class ProjectService {
         return ProjectResponse.from(savedProject);
     }
 
+    @Transactional
+    public ProjectResponse updateProject(Long projectId, ProjectUpdateRequest projectUpdateRequest, Long currentUserId) {
 
+        ProjectMember projectMember = projectMemberRepository.findByProjectIdAndUserId(projectId, currentUserId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        if (projectMember.getRole() != ProjectRole.OWNER) {
+            throw new ProjectAccessDeniedException(projectId);
+        }
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        if (projectUpdateRequest.getName() != null){
+            if (projectUpdateRequest.getName().isBlank()){
+                throw new InvalidRequestDataException("Name cannot be empty");
+            }
+
+            project.setName(projectUpdateRequest.getName().trim());
+        }
+
+        if (projectUpdateRequest.getDescription() != null){
+            project.setDescription(projectUpdateRequest.getDescription().trim());
+        }
+
+        project.setUpdatedAt(Instant.now());
+
+        return ProjectResponse.from(projectRepository.save(project));
+    }
 }
