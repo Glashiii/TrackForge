@@ -9,4 +9,6 @@ public interface ProjectMemberRepository extends CrudRepository<ProjectMember, L
     boolean existsByProjectIdAndUserId(Long projectId, Long userId);
 
     Optional<ProjectMember> findByProjectIdAndUserId(Long projectId, Long userId);
+
+    void deleteByProjectId(Long projectId);
 }

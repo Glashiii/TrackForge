@@ -52,4 +52,12 @@ public class ProjectController {
         ProjectResponse response = projectService.updateProject(id, projectUpdateRequest, currentUserId);
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        projectService.deleteProject(id, currentUserId);
+
+        return ResponseEntity.noContent().build();
+    }
 }

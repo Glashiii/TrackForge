@@ -113,4 +113,22 @@ public class ProjectService {
 
         return ProjectResponse.from(projectRepository.save(project));
     }
+
+    @Transactional
+    public void deleteProject(Long projectId, Long currentUserId) {
+
+        ProjectMember member = projectMemberRepository.findByProjectIdAndUserId(projectId, currentUserId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        if (member.getRole() != ProjectRole.OWNER) {
+            throw new ProjectAccessDeniedException(projectId);
+        }
+
+        Project project = projectRepository.findById(projectId)
+                        .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        projectMemberRepository.deleteByProjectId(projectId);
+        projectRepository.delete(project);
+
+    }
 }
