@@ -5,9 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.glashiii.projectcoreservice.dto.ProjectCreateRequest;
-import ru.glashiii.projectcoreservice.dto.ProjectResponse;
-import ru.glashiii.projectcoreservice.dto.ProjectUpdateRequest;
+import ru.glashiii.projectcoreservice.dto.*;
 import ru.glashiii.projectcoreservice.security.CurrentUserProvider;
 import ru.glashiii.projectcoreservice.services.ProjectService;
 
@@ -21,6 +19,8 @@ public class ProjectController {
     private final ProjectService projectService;
     private final CurrentUserProvider currentUserProvider;
 
+
+    // Project API
     @GetMapping
     public ResponseEntity<List<ProjectResponse>> getMyProjects() {
         Long currentUserId = currentUserProvider.getCurrentUserId();
@@ -31,7 +31,7 @@ public class ProjectController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProjectResponse> getProjectById(@PathVariable Long id){
+    public ResponseEntity<ProjectResponse> getProjectById(@PathVariable Long id) {
         Long currentUserId = currentUserProvider.getCurrentUserId();
 
         ProjectResponse pr = projectService.getProjectById(id, currentUserId);
@@ -59,5 +59,18 @@ public class ProjectController {
         projectService.deleteProject(id, currentUserId);
 
         return ResponseEntity.noContent().build();
+    }
+
+
+    // Members API
+    @PostMapping("/{id}/members")
+    public ResponseEntity<ProjectMemberResponse> createProjectMember(
+            @PathVariable("id") Long projectId,
+            @RequestBody @Valid ProjectMemberCreateRequest request
+    ) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        ProjectMemberResponse created = projectService.createMember(currentUserId, projectId, request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 }

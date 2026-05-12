@@ -4,16 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.glashiii.projectcoreservice.dto.ProjectCreateRequest;
-import ru.glashiii.projectcoreservice.dto.ProjectResponse;
-import ru.glashiii.projectcoreservice.dto.ProjectUpdateRequest;
+import ru.glashiii.projectcoreservice.dto.*;
 import ru.glashiii.projectcoreservice.entities.Project;
 import ru.glashiii.projectcoreservice.entities.ProjectMember;
 import ru.glashiii.projectcoreservice.entities.ProjectRole;
-import ru.glashiii.projectcoreservice.exceptions.DuplicateProjectKeyException;
-import ru.glashiii.projectcoreservice.exceptions.InvalidRequestDataException;
-import ru.glashiii.projectcoreservice.exceptions.ProjectAccessDeniedException;
-import ru.glashiii.projectcoreservice.exceptions.ProjectNotFoundException;
+import ru.glashiii.projectcoreservice.exceptions.*;
 import ru.glashiii.projectcoreservice.repositories.ProjectMemberRepository;
 import ru.glashiii.projectcoreservice.repositories.ProjectRepository;
 
@@ -130,5 +125,38 @@ public class ProjectService {
         projectMemberRepository.deleteByProjectId(projectId);
         projectRepository.delete(project);
 
+    }
+
+    @Transactional
+    public ProjectMemberResponse createMember(Long currentUserId, Long projectId, ProjectMemberCreateRequest request) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        ProjectMember owner = projectMemberRepository.findByProjectIdAndUserId(projectId, currentUserId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        if (owner.getRole() != ProjectRole.OWNER) {
+            throw new ProjectAccessDeniedException(projectId);
+        }
+
+        if (request.getRole() ==  ProjectRole.OWNER) {
+            throw new InvalidRequestDataException("Cannot create another owner of project");
+        }
+
+       if (projectMemberRepository.findByProjectIdAndUserId(projectId, request.getUserId()).isPresent()){
+            throw new MemberAlreadyExists(projectId, request.getUserId());
+       }
+        ProjectMember newMember = ProjectMember.builder()
+                .projectId(project.getId())
+                .userId(request.getUserId())
+                .joinedAt(Instant.now())
+                .role(request.getRole()).build();
+
+       try {
+           ProjectMember saved = projectMemberRepository.saveAndFlush(newMember);
+           return ProjectMemberResponse.from(saved);
+       } catch (DataIntegrityViolationException ex) {
+           throw new DuplicateEntityParamException("Cannot create same member of project");
+       }
     }
 }
