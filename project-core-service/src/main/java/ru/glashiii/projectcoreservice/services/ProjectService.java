@@ -210,4 +210,23 @@ public class ProjectService {
         ProjectMember updatedMember = projectMemberRepository.saveAndFlush(member);
         return ProjectMemberResponse.from(updatedMember);
     }
+
+    @Transactional
+    public void deleteProjectMember(Long userId, Long projectId, Long currentUserId) {
+        ProjectMember owner = projectMemberRepository.findByProjectIdAndUserId(projectId, currentUserId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        if (owner.getRole() != ProjectRole.OWNER) {
+            throw new ProjectAccessDeniedException(projectId);
+        }
+
+        if (userId.equals(currentUserId)) {
+            throw new InvalidRequestDataException("Cannot delete yourself from project");
+        }
+
+        ProjectMember memberToDelete = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
+                        .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        projectMemberRepository.delete(memberToDelete);
+    }
 }
