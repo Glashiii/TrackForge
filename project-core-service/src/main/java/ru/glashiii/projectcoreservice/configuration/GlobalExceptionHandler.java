@@ -1,5 +1,6 @@
 package ru.glashiii.projectcoreservice.configuration;
 
+import jakarta.persistence.ElementCollection;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -62,5 +63,30 @@ public class GlobalExceptionHandler {
         problem.setProperty("code", "INVALID_REQUEST");
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
+    }
+
+    @ExceptionHandler(MemberAlreadyExists.class)
+    public ResponseEntity<ProblemDetail> handleMemberAlreadyExists(MemberAlreadyExists ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                ex.getMessage()
+        );
+
+        problem.setTitle("Member already exists");
+        problem.setProperty("code", "MEMBER_ALREADY_EXISTS");
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+    }
+
+    @ExceptionHandler(DuplicateEntityParamException.class)
+    public ResponseEntity<ProblemDetail> handleDuplicate(DuplicateEntityParamException ex){
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                ex.getMessage()
+        );
+        problem.setTitle("Duplicate entity");
+        problem.setProperty("code", "DUPLICATE_ENTITY");
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
     }
 }
