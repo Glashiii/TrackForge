@@ -92,15 +92,15 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
 
-        if (projectUpdateRequest.getName() != null){
-            if (projectUpdateRequest.getName().isBlank()){
+        if (projectUpdateRequest.getName() != null) {
+            if (projectUpdateRequest.getName().isBlank()) {
                 throw new InvalidRequestDataException("Name cannot be empty");
             }
 
             project.setName(projectUpdateRequest.getName().trim());
         }
 
-        if (projectUpdateRequest.getDescription() != null){
+        if (projectUpdateRequest.getDescription() != null) {
             project.setDescription(projectUpdateRequest.getDescription().trim());
         }
 
@@ -120,7 +120,7 @@ public class ProjectService {
         }
 
         Project project = projectRepository.findById(projectId)
-                        .orElseThrow(() -> new ProjectNotFoundException(projectId));
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
 
         projectMemberRepository.deleteByProjectId(projectId);
         projectRepository.delete(project);
@@ -139,24 +139,49 @@ public class ProjectService {
             throw new ProjectAccessDeniedException(projectId);
         }
 
-        if (request.getRole() ==  ProjectRole.OWNER) {
+        if (request.getRole() == ProjectRole.OWNER) {
             throw new InvalidRequestDataException("Cannot create another owner of project");
         }
 
-       if (projectMemberRepository.findByProjectIdAndUserId(projectId, request.getUserId()).isPresent()){
+        if (projectMemberRepository.findByProjectIdAndUserId(projectId, request.getUserId()).isPresent()) {
             throw new MemberAlreadyExists(projectId, request.getUserId());
-       }
+        }
         ProjectMember newMember = ProjectMember.builder()
                 .projectId(project.getId())
                 .userId(request.getUserId())
                 .joinedAt(Instant.now())
                 .role(request.getRole()).build();
 
-       try {
-           ProjectMember saved = projectMemberRepository.saveAndFlush(newMember);
-           return ProjectMemberResponse.from(saved);
-       } catch (DataIntegrityViolationException ex) {
-           throw new DuplicateEntityParamException("Cannot create same member of project");
-       }
+        try {
+            ProjectMember saved = projectMemberRepository.saveAndFlush(newMember);
+            return ProjectMemberResponse.from(saved);
+        } catch (DataIntegrityViolationException ex) {
+            throw new DuplicateEntityParamException("Cannot create same member of project");
+        }
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<ProjectMemberResponse> getProjectMembers(Long currentUserId, Long projectId) {
+        if (projectMemberRepository.findByProjectIdAndUserId(projectId, currentUserId).isEmpty()) {
+            throw new ProjectNotFoundException(projectId);
+        }
+
+        return projectMemberRepository.findAllByProjectId(projectId)
+                .stream()
+                .map(ProjectMemberResponse::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public ProjectMemberResponse getMemberInProject(Long projectId, Long userId, Long currentUserId) {
+        projectMemberRepository.findByProjectIdAndUserId(projectId, currentUserId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        ProjectMember member = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        return ProjectMemberResponse.from(member);
+
     }
 }

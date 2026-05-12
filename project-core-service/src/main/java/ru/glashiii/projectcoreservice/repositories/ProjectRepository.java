@@ -17,4 +17,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findAllAvailableForUser(@Param("userId") Long userId);
 
     boolean existsByKey(String key);
+
+
 }

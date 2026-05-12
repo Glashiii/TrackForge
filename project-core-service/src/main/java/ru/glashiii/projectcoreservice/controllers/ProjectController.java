@@ -73,4 +73,32 @@ public class ProjectController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
+
+    @GetMapping("/{id}/members")
+    public ResponseEntity<List<ProjectMemberResponse>> getProjectMembers(@PathVariable("id") Long projectId) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        List<ProjectMemberResponse> members = projectService.getProjectMembers(currentUserId, projectId);
+
+        return ResponseEntity.ok(members);
+    }
+
+    @GetMapping("/{id}/members/{userId}")
+    public ResponseEntity<ProjectMemberResponse> getProjectMember(
+            @PathVariable Long userId,
+            @PathVariable("id") Long projectId
+    ) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        ProjectMemberResponse memberResponse = projectService.getMemberInProject(projectId, userId, currentUserId);
+
+        return ResponseEntity.ok(memberResponse);
+    }
+
+    @PatchMapping("/{id}/members/{userId}")
+    public ResponseEntity<ProjectMemberResponse> updateProjectMember(
+            @PathVariable Long userId,
+            @PathVariable("id") Long projectId
+    ) {
+
+    }
+
 }
