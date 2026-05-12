@@ -96,9 +96,18 @@ public class ProjectController {
     @PatchMapping("/{id}/members/{userId}")
     public ResponseEntity<ProjectMemberResponse> updateProjectMember(
             @PathVariable Long userId,
-            @PathVariable("id") Long projectId
+            @PathVariable("id") Long projectId,
+            @RequestBody @Valid ProjectMemberUpdateRequest projectMemberUpdateRequest
     ) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        ProjectMemberResponse memberResponse = projectService.updateProjectMember(
+                userId,
+                currentUserId,
+                projectId,
+                projectMemberUpdateRequest
+        );
 
+        return ResponseEntity.ok(memberResponse);
     }
 
 }

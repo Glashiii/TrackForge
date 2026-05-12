@@ -184,4 +184,30 @@ public class ProjectService {
         return ProjectMemberResponse.from(member);
 
     }
+
+    @Transactional
+    public ProjectMemberResponse updateProjectMember(Long userId, Long currentUserId, Long projectId, ProjectMemberUpdateRequest projectMemberUpdateRequest) {
+        ProjectMember owner = projectMemberRepository.findByProjectIdAndUserId(projectId, currentUserId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        if (owner.getRole() != ProjectRole.OWNER) {
+            throw new ProjectAccessDeniedException(projectId);
+        }
+
+        if (projectMemberUpdateRequest.getRole() == ProjectRole.OWNER) {
+            throw new InvalidRequestDataException("Cannot assign OWNER role");
+        }
+
+        if (userId.equals(currentUserId)) {
+            throw new InvalidRequestDataException("Cannot change your own project role");
+        }
+
+            ProjectMember member = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        member.setRole(projectMemberUpdateRequest.getRole());
+
+        ProjectMember updatedMember = projectMemberRepository.saveAndFlush(member);
+        return ProjectMemberResponse.from(updatedMember);
+    }
 }

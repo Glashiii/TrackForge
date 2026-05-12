@@ -1,6 +1,7 @@
 package ru.glashiii.projectcoreservice.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.Instant;
@@ -31,6 +32,7 @@ public class ProjectMember {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
+    @NotNull
     private ProjectRole role;
 
     @Column(nullable = false)
