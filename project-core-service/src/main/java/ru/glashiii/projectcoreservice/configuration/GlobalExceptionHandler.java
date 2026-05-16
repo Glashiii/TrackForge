@@ -89,4 +89,16 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
     }
+
+    @ExceptionHandler(IssueAccessDeniedException.class)
+    public ResponseEntity<ProblemDetail> handleIssueAccessDenied(IssueAccessDeniedException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN,
+                ex.getMessage()
+        );
+        problem.setTitle("Issue access denied");
+        problem.setProperty("code", "ISSUE_ACCESS_DENIED");
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problem);
+    }
 }
