@@ -1,13 +1,17 @@
 package ru.glashiii.projectcoreservice.entities;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Null;
+import lombok.*;
 
 import java.time.Instant;
 
 @Entity
-public class Issues {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Issue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,6 +20,7 @@ public class Issues {
     @Column(nullable = false)
     private Long projectId;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private IssueType type;
 
@@ -25,9 +30,11 @@ public class Issues {
     @Column
     private String description;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private IssueStatus status;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private IssuePriority priority;
 
