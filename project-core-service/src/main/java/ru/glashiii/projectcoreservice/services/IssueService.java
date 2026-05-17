@@ -15,6 +15,7 @@ import ru.glashiii.projectcoreservice.repositories.ProjectRepository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -85,5 +86,24 @@ public class IssueService {
         Issue issue = issueRepository.findByIdAndProjectId(issueId, projectId).orElseThrow(() -> new IssueNotFoundException(issueId));
 
         return IssueResponse.from(issue);
+    }
+
+    @Transactional
+    public void deleteIssue(Long userId, Long projectId, Long issueId) {
+        ProjectMember member = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        Issue issue = issueRepository.findByIdAndProjectId(issueId, projectId).orElseThrow(
+                () -> new IssueNotFoundException(issueId));
+
+        if (member.getRole() == ProjectRole.VIEWER){
+            throw new IssueAccessDeniedException(userId, projectId);
+        }
+
+        if (!Objects.equals(issue.getReporterId(), userId) && member.getRole() != ProjectRole.OWNER){
+            throw new IssueAccessDeniedException(userId, projectId);
+        }
+
+        issueRepository.delete(issue);
     }
 }

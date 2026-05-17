@@ -53,4 +53,15 @@ public class IssueController {
     }
 
 
+
+    @DeleteMapping("/{issueId}")
+    public ResponseEntity<Void> deleteIssue(
+            @PathVariable Long projectId,
+            @PathVariable Long issueId
+    ) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        issueService.deleteIssue(currentUserId, projectId, issueId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

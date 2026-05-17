@@ -12,4 +12,5 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
     List<Issue> findAllByProjectIdOrderByIssueNumberAsc(Long projectId);
 
     Optional<Issue> findByIdAndProjectId(Long id, Long projectId);
+
 }
