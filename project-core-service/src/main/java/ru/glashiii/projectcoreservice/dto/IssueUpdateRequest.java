@@ -15,7 +15,7 @@ public class IssueUpdateRequest {
 
     @Size(min = 1, max = 64)
     private String title;
-    @Size(min = 1, max = 255)
+    @Size(max = 255)
     private String description;
     private IssueStatus status;
     private IssuePriority priority;
