@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.glashiii.projectcoreservice.entities.IssuePriority;
 import ru.glashiii.projectcoreservice.entities.IssueStatus;
-import ru.glashiii.projectcoreservice.entities.IssueType;
+
 
 @Data
 @AllArgsConstructor
