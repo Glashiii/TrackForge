@@ -8,10 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.glashiii.projectcoreservice.dto.IssueCreateRequest;
 import ru.glashiii.projectcoreservice.dto.IssueResponse;
 import ru.glashiii.projectcoreservice.entities.*;
-import ru.glashiii.projectcoreservice.exceptions.DuplicateEntityParamException;
-import ru.glashiii.projectcoreservice.exceptions.InvalidRequestDataException;
-import ru.glashiii.projectcoreservice.exceptions.IssueAccessDeniedException;
-import ru.glashiii.projectcoreservice.exceptions.ProjectNotFoundException;
+import ru.glashiii.projectcoreservice.exceptions.*;
 import ru.glashiii.projectcoreservice.repositories.IssueRepository;
 import ru.glashiii.projectcoreservice.repositories.ProjectMemberRepository;
 import ru.glashiii.projectcoreservice.repositories.ProjectRepository;
@@ -78,5 +75,15 @@ public class IssueService {
         List<Issue> issues = issueRepository.findAllByProjectIdOrderByIssueNumberAsc(projectId);
 
         return issues.stream().map(IssueResponse::from).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public IssueResponse getIssue(Long userId, Long projectId, Long issueId) {
+        projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        Issue issue = issueRepository.findByIdAndProjectId(issueId, projectId).orElseThrow(() -> new IssueNotFoundException(issueId));
+
+        return IssueResponse.from(issue);
     }
 }

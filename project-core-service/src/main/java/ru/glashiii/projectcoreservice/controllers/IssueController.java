@@ -41,5 +41,16 @@ public class IssueController {
         return ResponseEntity.ok(issues);
     }
 
+    @GetMapping("/{issueId}")
+    public ResponseEntity<IssueResponse> getIssue(
+            @PathVariable Long projectId,
+            @PathVariable Long issueId
+    ) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        IssueResponse issue = issueService.getIssue(currentUserId, projectId, issueId);
+
+        return ResponseEntity.ok(issue);
+    }
+
 
 }

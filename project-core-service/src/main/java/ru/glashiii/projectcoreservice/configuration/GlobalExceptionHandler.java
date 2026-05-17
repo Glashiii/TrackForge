@@ -101,4 +101,16 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problem);
     }
+
+    @ExceptionHandler(IssueNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleIssueNotFound(IssueNotFoundException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage()
+        );
+        problem.setTitle("Issue not found");
+        problem.setProperty("code", "ISSUE_NOT_FOUND");
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
+    }
 }
