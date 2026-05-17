@@ -55,6 +55,7 @@ public class ProjectService {
                 .createdAt(now)
                 .updatedAt(now)
                 .ownerId(currentUserId)
+                .nextIssueNumber(1L)
                 .build();
 
         Project savedProject;

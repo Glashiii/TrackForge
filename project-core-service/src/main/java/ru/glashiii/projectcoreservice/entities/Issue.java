@@ -11,6 +11,11 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "issues",
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_issues_project_issue_number", columnNames = {"project_id", "issue_number"})
+    }
+)
 public class Issue {
 
     @Id
@@ -19,6 +24,9 @@ public class Issue {
 
     @Column(nullable = false)
     private Long projectId;
+
+    @Column(nullable = false)
+    private Long issueNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

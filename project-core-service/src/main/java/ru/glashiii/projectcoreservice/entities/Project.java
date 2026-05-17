@@ -22,6 +22,9 @@ public class Project {
     private Long id;
 
     @Column(nullable = false)
+    private Long nextIssueNumber;
+
+    @Column(nullable = false)
     private String name;
 
     @Column(length = 255)
