@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.glashiii.projectcoreservice.dto.IssueCreateRequest;
 import ru.glashiii.projectcoreservice.dto.IssueResponse;
+import ru.glashiii.projectcoreservice.dto.IssueUpdateRequest;
 import ru.glashiii.projectcoreservice.security.CurrentUserProvider;
 import ru.glashiii.projectcoreservice.services.IssueService;
 
@@ -52,12 +53,24 @@ public class IssueController {
         return ResponseEntity.ok(issue);
     }
 
+    @PatchMapping("/{issueId}")
+    public ResponseEntity<IssueResponse> updateIssue(
+            @PathVariable Long projectId,
+            @PathVariable Long issueId,
+            @Valid @RequestBody IssueUpdateRequest request
+    ) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        IssueResponse issueResponse = issueService.updateIssue(currentUserId, projectId, issueId, request);
+
+        return ResponseEntity.ok(issueResponse);
+    }
 
 
     @DeleteMapping("/{issueId}")
     public ResponseEntity<Void> deleteIssue(
             @PathVariable Long projectId,
             @PathVariable Long issueId
+
     ) {
         Long currentUserId = currentUserProvider.getCurrentUserId();
         issueService.deleteIssue(currentUserId, projectId, issueId);

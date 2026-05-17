@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.glashiii.projectcoreservice.dto.IssueCreateRequest;
 import ru.glashiii.projectcoreservice.dto.IssueResponse;
+import ru.glashiii.projectcoreservice.dto.IssueUpdateRequest;
 import ru.glashiii.projectcoreservice.entities.*;
 import ru.glashiii.projectcoreservice.exceptions.*;
 import ru.glashiii.projectcoreservice.repositories.IssueRepository;
@@ -106,4 +107,52 @@ public class IssueService {
 
         issueRepository.delete(issue);
     }
+
+    @Transactional
+    public IssueResponse updateIssue(Long userId, Long projectId, Long issueId, IssueUpdateRequest request) {
+        ProjectMember member = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        Issue issue = issueRepository.findByIdAndProjectId(issueId, projectId).orElseThrow(
+                () -> new IssueNotFoundException(issueId));
+
+        if (member.getRole() == ProjectRole.VIEWER){
+            throw new IssueAccessDeniedException(userId, projectId);
+        }
+
+        if (!Objects.equals(issue.getReporterId(), userId) && member.getRole() != ProjectRole.OWNER){
+            throw new IssueAccessDeniedException(userId, projectId);
+        }
+
+        if (request.getTitle() != null) {
+            if (request.getTitle().isBlank()) {
+                throw new InvalidRequestDataException("Title cannot be blank");
+            }
+            issue.setTitle(request.getTitle().trim());
+        }
+
+        if (request.getDescription() != null) {
+            issue.setDescription(request.getDescription().trim());
+        }
+
+        if (request.getStatus() != null) {
+            issue.setStatus(request.getStatus());
+        }
+
+        if (request.getPriority() != null) {
+            issue.setPriority(request.getPriority());
+        }
+
+        if (request.getAssigneeId() != null) {
+            projectMemberRepository.findByProjectIdAndUserId(projectId, request.getAssigneeId())
+                    .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+            issue.setAssigneeId(request.getAssigneeId());
+        }
+
+        issue.setUpdatedAt(Instant.now());
+
+        return IssueResponse.from(issueRepository.saveAndFlush(issue));
+    }
+
 }
