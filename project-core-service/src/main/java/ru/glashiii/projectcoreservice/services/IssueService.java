@@ -17,6 +17,7 @@ import ru.glashiii.projectcoreservice.repositories.ProjectMemberRepository;
 import ru.glashiii.projectcoreservice.repositories.ProjectRepository;
 
 import java.time.Instant;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -39,10 +40,6 @@ public class IssueService {
         if (member.getRole() == ProjectRole.VIEWER){
             throw new IssueAccessDeniedException(userId, projectId);
         }
-
-/*        if (issueRepository.existsByProjectIdAndTitle(projectId, issueCreateRequest.getTitle())) {
-            throw new DuplicateEntityParamException("Issue with this name already exists in this project " + projectId);
-        }*/
 
 
         if (issueCreateRequest.getAssigneeId() != null
@@ -71,5 +68,15 @@ public class IssueService {
             throw new DuplicateEntityParamException("Issue with this name already exists in this project " + projectId);
         }
 
+    }
+
+    @Transactional(readOnly = true)
+    public List<IssueResponse> getAllIssuesInProject(Long userId, Long projectId) {
+        projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        List<Issue> issues = issueRepository.findAllByProjectIdOrderByIssueNumberAsc(projectId);
+
+        return issues.stream().map(IssueResponse::from).toList();
     }
 }

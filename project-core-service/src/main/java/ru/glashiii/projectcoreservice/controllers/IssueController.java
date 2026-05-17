@@ -7,9 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.glashiii.projectcoreservice.dto.IssueCreateRequest;
 import ru.glashiii.projectcoreservice.dto.IssueResponse;
-import ru.glashiii.projectcoreservice.entities.Issue;
 import ru.glashiii.projectcoreservice.security.CurrentUserProvider;
 import ru.glashiii.projectcoreservice.services.IssueService;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,6 +29,16 @@ public class IssueController {
         IssueResponse createdIssue = issueService.createIssue(currentUserId, projectId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdIssue);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<IssueResponse>> getIssues(
+            @PathVariable Long projectId
+    ) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        List<IssueResponse> issues = issueService.getAllIssuesInProject(currentUserId, projectId);
+
+        return ResponseEntity.ok(issues);
     }
 
 
