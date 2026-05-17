@@ -31,7 +31,7 @@ public class IssueService {
         ProjectMember member = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
 
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
+        Project project = projectRepository.findByIdForUpdate(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
         Long issueNumber = project.getNextIssueNumber();
 
         project.setNextIssueNumber(issueNumber + 1L);
@@ -64,7 +64,7 @@ public class IssueService {
             Issue saved =  issueRepository.saveAndFlush(issue);
             return IssueResponse.from(saved);
         } catch (DataIntegrityViolationException e) {
-            throw new DuplicateEntityParamException("Issue with this name already exists in this project " + projectId);
+            throw new DuplicateEntityParamException("Cannot create same issue");
         }
 
     }
