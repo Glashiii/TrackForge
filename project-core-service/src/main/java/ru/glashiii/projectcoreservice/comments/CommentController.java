@@ -1,7 +1,44 @@
 package ru.glashiii.projectcoreservice.comments;
 
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import ru.glashiii.projectcoreservice.comments.dto.CommentResponse;
+import ru.glashiii.projectcoreservice.comments.dto.CreateCommentRequest;
+import ru.glashiii.projectcoreservice.security.CurrentUserProvider;
+
+import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
+@RequestMapping("/projects/{projectId}/issues/{issueId}/comments")
 public class CommentController {
+
+    private final CommentService service;
+    private final CurrentUserProvider currentUserProvider;
+
+    @PostMapping()
+    public ResponseEntity<CommentResponse> createComment(
+            @PathVariable Long projectId,
+            @PathVariable Long issueId,
+            @RequestBody @Valid CreateCommentRequest commentRequest
+    ) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        CommentResponse createdComment = service.createComment(currentUserId, projectId, issueId, commentRequest);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
+    }
+
+    @GetMapping()
+    public ResponseEntity<List<CommentResponse>> getComments(
+            @PathVariable Long projectId,
+            @PathVariable Long issueId
+    ) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        List<CommentResponse> comments = service.getAllComments(currentUserId, projectId, issueId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(comments);
+    }
 }
