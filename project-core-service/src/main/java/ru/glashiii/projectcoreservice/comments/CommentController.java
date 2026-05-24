@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.glashiii.projectcoreservice.comments.dto.CommentResponse;
 import ru.glashiii.projectcoreservice.comments.dto.CreateCommentRequest;
+import ru.glashiii.projectcoreservice.comments.dto.UpdateCommentRequest;
 import ru.glashiii.projectcoreservice.security.CurrentUserProvider;
 
 import java.util.List;
@@ -40,5 +41,18 @@ public class CommentController {
         List<CommentResponse> comments = service.getAllComments(currentUserId, projectId, issueId);
 
         return ResponseEntity.status(HttpStatus.OK).body(comments);
+    }
+
+    @PatchMapping("/{commentId}")
+    public ResponseEntity<CommentResponse> updateComment(
+            @PathVariable Long projectId,
+            @PathVariable Long issueId,
+            @PathVariable Long commentId,
+            @RequestBody @Valid UpdateCommentRequest commentRequest
+    ) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        CommentResponse updatedComment = service.updateComment(currentUserId, projectId, issueId, commentId, commentRequest);
+
+        return ResponseEntity.status(HttpStatus.OK).body(updatedComment);
     }
 }

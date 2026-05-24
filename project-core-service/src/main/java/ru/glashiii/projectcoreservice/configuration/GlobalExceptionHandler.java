@@ -125,4 +125,16 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problem);
     }
+
+    @ExceptionHandler(CommentNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleCommentNotFound(CommentNotFoundException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage()
+        );
+        problem.setTitle("Comment not found");
+        problem.setProperty("code", "COMMENT_NOT_FOUND");
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
+    }
 }
