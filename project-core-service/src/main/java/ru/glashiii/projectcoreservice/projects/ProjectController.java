@@ -1,13 +1,13 @@
-package ru.glashiii.projectcoreservice.controllers;
+package ru.glashiii.projectcoreservice.projects;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.glashiii.projectcoreservice.dto.*;
+import ru.glashiii.projectcoreservice.projects.dto.*;
 import ru.glashiii.projectcoreservice.security.CurrentUserProvider;
-import ru.glashiii.projectcoreservice.services.ProjectService;
+import ru.glashiii.projectcoreservice.projects.ProjectService;
 
 import java.util.List;
 

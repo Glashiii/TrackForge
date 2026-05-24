@@ -1,11 +1,13 @@
-package ru.glashiii.projectcoreservice.repositories;
+package ru.glashiii.projectcoreservice.issues;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.glashiii.projectcoreservice.entities.Issue;
+import org.springframework.stereotype.Repository;
+import ru.glashiii.projectcoreservice.issues.Issue;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface IssueRepository extends JpaRepository<Issue, Long> {
     boolean existsByProjectIdAndTitle(Long projectId, String title);
 

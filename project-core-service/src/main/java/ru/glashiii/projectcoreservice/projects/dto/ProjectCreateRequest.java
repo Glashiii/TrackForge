@@ -1,4 +1,4 @@
-package ru.glashiii.projectcoreservice.dto;
+package ru.glashiii.projectcoreservice.projects.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

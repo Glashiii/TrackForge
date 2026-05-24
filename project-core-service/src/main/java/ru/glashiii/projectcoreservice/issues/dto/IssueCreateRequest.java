@@ -1,12 +1,12 @@
-package ru.glashiii.projectcoreservice.dto;
+package ru.glashiii.projectcoreservice.issues.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import ru.glashiii.projectcoreservice.entities.IssuePriority;
-import ru.glashiii.projectcoreservice.entities.IssueStatus;
-import ru.glashiii.projectcoreservice.entities.IssueType;
+import ru.glashiii.projectcoreservice.issues.IssuePriority;
+import ru.glashiii.projectcoreservice.issues.IssueStatus;
+import ru.glashiii.projectcoreservice.issues.IssueType;
 
 @Data
 public class IssueCreateRequest {

@@ -1,4 +1,4 @@
-package ru.glashiii.projectcoreservice.entities;
+package ru.glashiii.projectcoreservice.comments;
 
 import jakarta.persistence.*;
 import lombok.*;

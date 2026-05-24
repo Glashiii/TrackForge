@@ -1,16 +1,16 @@
-package ru.glashiii.projectcoreservice.services;
+package ru.glashiii.projectcoreservice.projects;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.glashiii.projectcoreservice.dto.*;
-import ru.glashiii.projectcoreservice.entities.Project;
-import ru.glashiii.projectcoreservice.entities.ProjectMember;
-import ru.glashiii.projectcoreservice.entities.ProjectRole;
+import ru.glashiii.projectcoreservice.projects.dto.*;
+import ru.glashiii.projectcoreservice.projects.Project;
+import ru.glashiii.projectcoreservice.projects.ProjectMember;
+import ru.glashiii.projectcoreservice.projects.ProjectRole;
 import ru.glashiii.projectcoreservice.exceptions.*;
-import ru.glashiii.projectcoreservice.repositories.ProjectMemberRepository;
-import ru.glashiii.projectcoreservice.repositories.ProjectRepository;
+import ru.glashiii.projectcoreservice.projects.ProjectMemberRepository;
+import ru.glashiii.projectcoreservice.projects.ProjectRepository;
 
 import java.time.Instant;
 import java.util.List;

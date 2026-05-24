@@ -1,11 +1,13 @@
-package ru.glashiii.projectcoreservice.repositories;
+package ru.glashiii.projectcoreservice.projects;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.glashiii.projectcoreservice.entities.ProjectMember;
+import org.springframework.stereotype.Repository;
+import ru.glashiii.projectcoreservice.projects.ProjectMember;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Long> {
     boolean existsByProjectIdAndUserId(Long projectId, Long userId);
 

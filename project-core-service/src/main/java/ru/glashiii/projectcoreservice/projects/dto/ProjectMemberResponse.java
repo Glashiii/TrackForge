@@ -1,9 +1,9 @@
-package ru.glashiii.projectcoreservice.dto;
+package ru.glashiii.projectcoreservice.projects.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import ru.glashiii.projectcoreservice.entities.ProjectMember;
-import ru.glashiii.projectcoreservice.entities.ProjectRole;
+import ru.glashiii.projectcoreservice.projects.ProjectMember;
+import ru.glashiii.projectcoreservice.projects.ProjectRole;
 
 import java.time.Instant;
 @Data

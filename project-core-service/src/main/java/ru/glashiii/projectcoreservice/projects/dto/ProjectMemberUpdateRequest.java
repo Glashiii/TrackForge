@@ -1,10 +1,10 @@
-package ru.glashiii.projectcoreservice.dto;
+package ru.glashiii.projectcoreservice.projects.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.glashiii.projectcoreservice.entities.ProjectRole;
+import ru.glashiii.projectcoreservice.projects.ProjectRole;
 
 @Data
 @AllArgsConstructor

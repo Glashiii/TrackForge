@@ -1,11 +1,11 @@
-package ru.glashiii.projectcoreservice.dto;
+package ru.glashiii.projectcoreservice.issues.dto;
 
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.glashiii.projectcoreservice.entities.IssuePriority;
-import ru.glashiii.projectcoreservice.entities.IssueStatus;
+import ru.glashiii.projectcoreservice.issues.IssuePriority;
+import ru.glashiii.projectcoreservice.issues.IssueStatus;
 
 
 @Data

@@ -1,12 +1,12 @@
-package ru.glashiii.projectcoreservice.dto;
+package ru.glashiii.projectcoreservice.issues.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import ru.glashiii.projectcoreservice.entities.Issue;
-import ru.glashiii.projectcoreservice.entities.IssuePriority;
-import ru.glashiii.projectcoreservice.entities.IssueStatus;
-import ru.glashiii.projectcoreservice.entities.IssueType;
+import ru.glashiii.projectcoreservice.issues.Issue;
+import ru.glashiii.projectcoreservice.issues.IssuePriority;
+import ru.glashiii.projectcoreservice.issues.IssueStatus;
+import ru.glashiii.projectcoreservice.issues.IssueType;
 
 import java.time.Instant;
 

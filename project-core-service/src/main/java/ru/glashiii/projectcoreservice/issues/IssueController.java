@@ -1,15 +1,15 @@
-package ru.glashiii.projectcoreservice.controllers;
+package ru.glashiii.projectcoreservice.issues;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.glashiii.projectcoreservice.dto.IssueCreateRequest;
-import ru.glashiii.projectcoreservice.dto.IssueResponse;
-import ru.glashiii.projectcoreservice.dto.IssueUpdateRequest;
+import ru.glashiii.projectcoreservice.issues.dto.IssueCreateRequest;
+import ru.glashiii.projectcoreservice.issues.dto.IssueResponse;
+import ru.glashiii.projectcoreservice.issues.dto.IssueUpdateRequest;
 import ru.glashiii.projectcoreservice.security.CurrentUserProvider;
-import ru.glashiii.projectcoreservice.services.IssueService;
+import ru.glashiii.projectcoreservice.issues.IssueService;
 
 import java.util.List;
 
