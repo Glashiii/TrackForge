@@ -113,4 +113,16 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
     }
+
+    @ExceptionHandler(CommentAccessDeniedException.class)
+    public ResponseEntity<ProblemDetail> handleCommentAccessDenied(CommentAccessDeniedException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN,
+                ex.getMessage()
+        );
+        problem.setTitle("Comment access denied");
+        problem.setProperty("code", "COMMENT_ACCESS_DENIED");
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problem);
+    }
 }
