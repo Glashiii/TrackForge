@@ -55,4 +55,16 @@ public class CommentController {
 
         return ResponseEntity.status(HttpStatus.OK).body(updatedComment);
     }
+
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<Void> deleteComment(
+            @PathVariable Long projectId,
+            @PathVariable Long issueId,
+            @PathVariable Long commentId
+    ) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        service.deleteComment(currentUserId, projectId, issueId, commentId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

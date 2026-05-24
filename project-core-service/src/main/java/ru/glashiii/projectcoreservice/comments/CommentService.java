@@ -75,11 +75,15 @@ public class CommentService {
 
     @Transactional
     public CommentResponse updateComment(Long userId, Long projectId, Long issueId, Long commentId, UpdateCommentRequest commentRequest) {
-        projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
+        ProjectMember projectMember = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
 
         issueRepository.findByIdAndProjectId(issueId, projectId)
                 .orElseThrow(() -> new IssueNotFoundException(issueId));
+
+        if (projectMember.getRole() == ProjectRole.VIEWER) {
+            throw new ProjectAccessDeniedException(projectId);
+        }
 
         Comment comment = commentRepository.findByIdAndIssueIdAndProjectId(commentId, issueId, projectId)
                 .orElseThrow(() -> new CommentNotFoundException(commentId));
@@ -93,6 +97,25 @@ public class CommentService {
 
         Comment updatedComment = commentRepository.saveAndFlush(comment);
 
-        return  CommentResponse.from(updatedComment);
+        return CommentResponse.from(updatedComment);
+    }
+
+    @Transactional
+    public void deleteComment(Long userId, Long projectId, Long issueId, Long commentId) {
+        ProjectMember projectMember = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        issueRepository.findByIdAndProjectId(issueId, projectId)
+                .orElseThrow(() -> new IssueNotFoundException(issueId));
+
+        Comment comment = commentRepository.findByIdAndIssueIdAndProjectId(commentId, issueId, projectId)
+                .orElseThrow(() -> new CommentNotFoundException(commentId));
+
+
+        if (!Objects.equals(comment.getUserId(), userId) && projectMember.getRole() != ProjectRole.OWNER) {
+            throw new CommentAccessDeniedException(commentId);
+        }
+
+        commentRepository.delete(comment);
     }
 }
