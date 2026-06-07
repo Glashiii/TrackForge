@@ -26,6 +26,12 @@ public class Issue {
     private Long projectId;
 
     @Column(nullable = false)
+    private Integer position;
+
+    @Column(nullable = false)
+    private Long columnId;
+
+    @Column(nullable = false)
     private Long issueNumber;
 
     @Enumerated(EnumType.STRING)
@@ -37,10 +43,6 @@ public class Issue {
 
     @Column
     private String description;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private IssueStatus status;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
