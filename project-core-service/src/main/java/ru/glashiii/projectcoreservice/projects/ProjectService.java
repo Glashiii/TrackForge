@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.glashiii.projectcoreservice.boards.BoardService;
 import ru.glashiii.projectcoreservice.projects.dto.*;
 import ru.glashiii.projectcoreservice.projects.Project;
 import ru.glashiii.projectcoreservice.projects.ProjectMember;
@@ -21,6 +22,7 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final ProjectMemberRepository projectMemberRepository;
+    private final BoardService boardService;
 
     @Transactional(readOnly = true)
     public List<ProjectResponse> getMyProjects(Long currentUserId) {
@@ -76,6 +78,8 @@ public class ProjectService {
                 .build();
 
         projectMemberRepository.save(ownerMember);
+
+        boardService.createDefaultBoard(savedProject.getId());
 
         return ProjectResponse.from(savedProject);
     }
