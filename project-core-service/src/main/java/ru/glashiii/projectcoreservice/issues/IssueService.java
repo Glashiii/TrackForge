@@ -54,7 +54,6 @@ public class IssueService {
                 .type(issueCreateRequest.getIssueType())
                 .title(issueCreateRequest.getTitle())
                 .description(issueCreateRequest.getDescription())
-                .status(IssueStatus.TODO)
                 .priority(issueCreateRequest.getPriority())
                 .assigneeId(issueCreateRequest.getAssigneeId())
                 .reporterId(userId)
@@ -138,9 +137,6 @@ public class IssueService {
             issue.setDescription(request.getDescription().trim());
         }
 
-        if (request.getStatus() != null) {
-            issue.setStatus(request.getStatus());
-        }
 
         if (request.getPriority() != null) {
             issue.setPriority(request.getPriority());

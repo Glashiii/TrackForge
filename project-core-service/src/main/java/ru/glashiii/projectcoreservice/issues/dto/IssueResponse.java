@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import ru.glashiii.projectcoreservice.issues.Issue;
 import ru.glashiii.projectcoreservice.issues.IssuePriority;
-import ru.glashiii.projectcoreservice.issues.IssueStatus;
 import ru.glashiii.projectcoreservice.issues.IssueType;
 
 import java.time.Instant;
@@ -19,7 +18,6 @@ public class IssueResponse {
     private IssueType type;
     private String title;
     private String description;
-    private IssueStatus status;
     private IssuePriority priority;
     private Long assigneeId;
     private Long reporterId;
@@ -34,7 +32,6 @@ public class IssueResponse {
                 issue.getType(),
                 issue.getTitle(),
                 issue.getDescription(),
-                issue.getStatus(),
                 issue.getPriority(),
                 issue.getAssigneeId(),
                 issue.getReporterId(),

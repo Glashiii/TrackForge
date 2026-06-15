@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.glashiii.projectcoreservice.issues.IssuePriority;
-import ru.glashiii.projectcoreservice.issues.IssueStatus;
 
 
 @Data
@@ -17,7 +16,6 @@ public class IssueUpdateRequest {
     private String title;
     @Size(max = 255)
     private String description;
-    private IssueStatus status;
     private IssuePriority priority;
     private Long assigneeId;
 
