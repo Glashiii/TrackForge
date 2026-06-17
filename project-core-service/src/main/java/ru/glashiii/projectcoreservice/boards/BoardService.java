@@ -7,8 +7,10 @@ import ru.glashiii.projectcoreservice.boards.dto.BoardColumnCreateRequest;
 import ru.glashiii.projectcoreservice.boards.dto.BoardColumnResponse;
 import ru.glashiii.projectcoreservice.boards.dto.BoardResponse;
 import ru.glashiii.projectcoreservice.exceptions.DuplicateEntityParamException;
+import ru.glashiii.projectcoreservice.exceptions.InvalidRequestDataException;
 import ru.glashiii.projectcoreservice.exceptions.ProjectAccessDeniedException;
 import ru.glashiii.projectcoreservice.exceptions.ProjectNotFoundException;
+import ru.glashiii.projectcoreservice.issues.IssueRepository;
 import ru.glashiii.projectcoreservice.projects.ProjectMember;
 import ru.glashiii.projectcoreservice.projects.ProjectMemberRepository;
 import ru.glashiii.projectcoreservice.projects.ProjectRepository;
@@ -25,17 +27,18 @@ public class BoardService {
     private final BoardColumnRepository boardColumnRepository;
     private final ProjectRepository projectRepository;
     private final ProjectMemberRepository projectMemberRepository;
+    private final IssueRepository issueRepository;
 
     @Transactional
     public void createDefaultBoard(Long projectId) {
 
-       if (boardRepository.existsByProjectId(projectId)) {
-           throw new DuplicateEntityParamException("Project with id " + projectId + " already have board");
-       }
+        if (boardRepository.existsByProjectId(projectId)) {
+            throw new DuplicateEntityParamException("Project with id " + projectId + " already have board");
+        }
 
-       if (projectRepository.findById(projectId).isEmpty()) {
-           throw new ProjectNotFoundException(projectId);
-       }
+        if (projectRepository.findById(projectId).isEmpty()) {
+            throw new ProjectNotFoundException(projectId);
+        }
 
         Instant now = Instant.now();
 
@@ -106,6 +109,43 @@ public class BoardService {
         return BoardColumnResponse.from(savedColumn);
     }
 
+    @Transactional
+    public void deleteColumn(Long projectId, Long columnId, Long userId) {
+        ProjectMember projectMember = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        if (projectMember.getRole() != ProjectRole.OWNER) {
+            throw new ProjectAccessDeniedException(projectId);
+        }
+
+        Board board = boardRepository.findByProjectIdForUpdate(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        BoardColumn column = boardColumnRepository.findByIdAndProjectId(columnId, projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        if (issueRepository.existsByProjectIdAndColumnId(projectId, columnId)) {
+            throw new InvalidRequestDataException("Cannot delete column with issues");
+        }
+
+        boardColumnRepository.delete(column);
+        boardColumnRepository.flush();
+
+        recalculateColumnPositions(board.getId());
+
+        Instant now = Instant.now();
+        board.setUpdatedAt(now);
+
+    }
+
+
+    private void recalculateColumnPositions(Long boardId) {
+        List<BoardColumn> columns = boardColumnRepository.findAllByBoardIdOrderByPositionAsc(boardId);
+
+        for (int i = 0; i < columns.size(); i++) {
+            columns.get(i).setPosition(i + 1);
+        }
+        boardColumnRepository.saveAll(columns);
+    }
 
     private BoardColumn createColumn(Board board, String name, Integer position, Instant now) {
         return BoardColumn.builder()

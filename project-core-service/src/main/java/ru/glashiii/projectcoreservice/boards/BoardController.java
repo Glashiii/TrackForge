@@ -32,5 +32,17 @@ public class BoardController {
         Long currentUserId = currentUserProvider.getCurrentUserId();
         BoardColumnResponse column = boardService.createColumnInProject(currentUserId, projectId, request);
         return ResponseEntity.ok(column);
-        }
+    }
+
+
+    @DeleteMapping("/board/columns/{columnId}")
+    public ResponseEntity<Void> deleteBoardColumnByProject(
+            @PathVariable Long projectId,
+            @PathVariable Long columnId
+    ) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        boardService.deleteColumn(projectId, columnId, currentUserId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

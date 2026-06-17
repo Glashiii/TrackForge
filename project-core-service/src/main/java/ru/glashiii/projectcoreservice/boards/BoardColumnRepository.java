@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BoardColumnRepository extends JpaRepository<BoardColumn, Long> {
     List<BoardColumn> findAllByBoardIdOrderByPositionAsc(Long boardId);
@@ -15,4 +16,6 @@ public interface BoardColumnRepository extends JpaRepository<BoardColumn, Long> 
                             where c.boardId = :boardId
             """)
     Integer findMaxPositionByBoardId(@Param("boardId") Long boardId);
+
+    Optional<BoardColumn> findByIdAndProjectId(Long columnId, Long projectId);
 }
