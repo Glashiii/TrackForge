@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ru.glashiii.projectcoreservice.boards.dto.BoardColumnCreateRequest;
 import ru.glashiii.projectcoreservice.boards.dto.BoardColumnResponse;
+import ru.glashiii.projectcoreservice.boards.dto.BoardColumnUpdateRequest;
 import ru.glashiii.projectcoreservice.boards.dto.BoardResponse;
 import ru.glashiii.projectcoreservice.security.CurrentUserProvider;
 
@@ -43,6 +44,17 @@ public class BoardController {
         Long currentUserId = currentUserProvider.getCurrentUserId();
         boardService.deleteColumn(projectId, columnId, currentUserId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/board/columns/{columnId}")
+    public ResponseEntity<BoardColumnResponse> updateBoardColumn(
+            @PathVariable Long projectId,
+            @PathVariable Long columnId,
+            @Valid @RequestBody BoardColumnUpdateRequest request
+    ) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        BoardColumnResponse updatedColumn = boardService.updateColumn(currentUserId, projectId, columnId, request);
+        return ResponseEntity.ok(updatedColumn);
     }
 
 }

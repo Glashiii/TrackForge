@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.glashiii.projectcoreservice.boards.dto.BoardColumnCreateRequest;
 import ru.glashiii.projectcoreservice.boards.dto.BoardColumnResponse;
+import ru.glashiii.projectcoreservice.boards.dto.BoardColumnUpdateRequest;
 import ru.glashiii.projectcoreservice.boards.dto.BoardResponse;
 import ru.glashiii.projectcoreservice.exceptions.DuplicateEntityParamException;
 import ru.glashiii.projectcoreservice.exceptions.InvalidRequestDataException;
@@ -18,6 +19,7 @@ import ru.glashiii.projectcoreservice.projects.ProjectRole;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -137,6 +139,78 @@ public class BoardService {
 
     }
 
+    @Transactional
+    public BoardColumnResponse updateColumn(Long userId, Long projectId, Long columnId, BoardColumnUpdateRequest request) {
+        boolean changed = false;
+
+        ProjectMember projectMember = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        if (projectMember.getRole() != ProjectRole.OWNER) {
+            throw new ProjectAccessDeniedException(projectId);
+        }
+
+        Board board = boardRepository.findByProjectIdForUpdate(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        BoardColumn column = boardColumnRepository.findByIdAndProjectId(columnId, projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        if (request.getName() != null) {
+            String name = request.getName().trim();
+            if (name.isEmpty()) {
+                throw new InvalidRequestDataException("Column name cannot be blank");
+            }
+
+            if (boardColumnRepository.existsByBoardIdAndNameAndIdNot(board.getId(), name, columnId)) {
+                throw new DuplicateEntityParamException("Column with name " + name + " already exists");
+            }
+
+            column.setName(name);
+            changed = true;
+        }
+
+        if (request.getPosition() != null) {
+            moveColumn(board.getId(), column, request.getPosition());
+
+            changed = true;
+        }
+
+        if (changed) {
+            Instant now = Instant.now();
+            column.setUpdatedAt(now);
+            board.setUpdatedAt(now);
+        }
+
+        return BoardColumnResponse.from(column);
+    }
+
+    private void moveColumn(Long boardId, BoardColumn columnToMove, Integer targetPosition) {
+        List<BoardColumn> columns = boardColumnRepository.findAllByBoardIdOrderByPositionAsc(boardId);
+
+        if (targetPosition < 1 || targetPosition > columns.size()) {
+            throw new InvalidRequestDataException("Column position is out of range");
+        }
+
+        if (columnToMove.getPosition().equals(targetPosition)) {
+            return;
+        }
+
+        columns.removeIf(column -> column.getId().equals(columnToMove.getId()));
+        columns.add(targetPosition - 1, columnToMove);
+
+        // firstly negative positons for bypassing unique constraints
+        for (int i = 0; i < columns.size(); i++) {
+            columns.get(i).setPosition(-(i + 1));
+        }
+
+        boardColumnRepository.flush();
+
+        for (int i = 0; i < columns.size(); i++) {
+            columns.get(i).setPosition(i + 1);
+        }
+
+    }
 
     private void recalculateColumnPositions(Long boardId) {
         List<BoardColumn> columns = boardColumnRepository.findAllByBoardIdOrderByPositionAsc(boardId);
@@ -157,4 +231,5 @@ public class BoardService {
                 .updatedAt(now)
                 .build();
     }
+
 }

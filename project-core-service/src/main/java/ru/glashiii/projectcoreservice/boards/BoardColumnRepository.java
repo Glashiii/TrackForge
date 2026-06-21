@@ -18,4 +18,7 @@ public interface BoardColumnRepository extends JpaRepository<BoardColumn, Long> 
     Integer findMaxPositionByBoardId(@Param("boardId") Long boardId);
 
     Optional<BoardColumn> findByIdAndProjectId(Long columnId, Long projectId);
+
+    boolean existsByBoardIdAndNameAndIdNot(Long boardId, String name, Long id);
 }
+
