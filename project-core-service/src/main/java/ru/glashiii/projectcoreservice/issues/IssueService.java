@@ -5,6 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.glashiii.projectcoreservice.boards.Board;
+import ru.glashiii.projectcoreservice.boards.BoardColumn;
+import ru.glashiii.projectcoreservice.boards.BoardColumnRepository;
+import ru.glashiii.projectcoreservice.boards.BoardRepository;
 import ru.glashiii.projectcoreservice.issues.dto.IssueCreateRequest;
 import ru.glashiii.projectcoreservice.issues.dto.IssueResponse;
 import ru.glashiii.projectcoreservice.issues.dto.IssueUpdateRequest;
@@ -28,26 +32,42 @@ public class IssueService {
     private final IssueRepository issueRepository;
     private final ProjectMemberRepository projectMemberRepository;
     private final ProjectRepository projectRepository;
+    private final BoardRepository boardRepository;
+    private final BoardColumnRepository boardColumnRepository;
 
     @Transactional
     public IssueResponse createIssue(Long userId, Long projectId, IssueCreateRequest issueCreateRequest) {
         ProjectMember member = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
 
+        if (member.getRole() == ProjectRole.VIEWER){
+            throw new IssueAccessDeniedException(userId, projectId);
+        }
+
         Project project = projectRepository.findByIdForUpdate(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
         Long issueNumber = project.getNextIssueNumber();
 
         project.setNextIssueNumber(issueNumber + 1L);
 
-        if (member.getRole() == ProjectRole.VIEWER){
-            throw new IssueAccessDeniedException(userId, projectId);
-        }
 
 
         if (issueCreateRequest.getAssigneeId() != null
             && !projectMemberRepository.existsByProjectIdAndUserId(projectId, issueCreateRequest.getAssigneeId())){
             throw new InvalidRequestDataException("Assignee must be a project member");
         }
+
+        Board board = boardRepository.findByProjectIdForUpdate(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        BoardColumn targetColumn = boardColumnRepository.findAllByBoardIdOrderByPositionAsc(board.getId())
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new InvalidRequestDataException("Project board has no columns"));
+
+        Integer position = issueRepository.findMaxPositionByProjectIdAndColumnId(
+                projectId,
+                targetColumn.getId()
+        ) + 1;
 
         Issue issue = Issue.builder()
                 .projectId(projectId)
@@ -60,6 +80,8 @@ public class IssueService {
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .issueNumber(issueNumber)
+                .columnId(targetColumn.getId())
+                .position(position)
                 .build();
 
         try {

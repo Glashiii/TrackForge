@@ -23,6 +23,9 @@ public class IssueResponse {
     private Long reporterId;
     private Instant createdAt;
     private Instant updatedAt;
+    private Integer position;
+    private Long columnId;
+    private Long issueNumber;
 
 
     public static IssueResponse from(Issue issue) {
@@ -36,7 +39,11 @@ public class IssueResponse {
                 issue.getAssigneeId(),
                 issue.getReporterId(),
                 issue.getCreatedAt(),
-                issue.getUpdatedAt()
+                issue.getUpdatedAt(),
+                issue.getPosition(),
+                issue.getColumnId(),
+                issue.getIssueNumber()
+
         );
     }
 }
