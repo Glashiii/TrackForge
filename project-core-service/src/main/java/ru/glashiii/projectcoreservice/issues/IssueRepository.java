@@ -29,4 +29,6 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
             @Param("projectId") Long projectId,
             @Param("columnId") Long columnId
     );
+
+    List<Issue> findAllByProjectIdAndColumnIdOrderByPositionAsc(Long projectId, Long columnId);
 }

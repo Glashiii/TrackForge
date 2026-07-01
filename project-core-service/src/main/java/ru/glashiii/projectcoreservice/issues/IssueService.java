@@ -1,5 +1,6 @@
 package ru.glashiii.projectcoreservice.issues;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -10,6 +11,7 @@ import ru.glashiii.projectcoreservice.boards.BoardColumn;
 import ru.glashiii.projectcoreservice.boards.BoardColumnRepository;
 import ru.glashiii.projectcoreservice.boards.BoardRepository;
 import ru.glashiii.projectcoreservice.issues.dto.IssueCreateRequest;
+import ru.glashiii.projectcoreservice.issues.dto.IssueMoveRequest;
 import ru.glashiii.projectcoreservice.issues.dto.IssueResponse;
 import ru.glashiii.projectcoreservice.issues.dto.IssueUpdateRequest;
 import ru.glashiii.projectcoreservice.issues.*;
@@ -40,7 +42,7 @@ public class IssueService {
         ProjectMember member = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
 
-        if (member.getRole() == ProjectRole.VIEWER){
+        if (member.getRole() == ProjectRole.VIEWER) {
             throw new IssueAccessDeniedException(userId, projectId);
         }
 
@@ -50,9 +52,8 @@ public class IssueService {
         project.setNextIssueNumber(issueNumber + 1L);
 
 
-
         if (issueCreateRequest.getAssigneeId() != null
-            && !projectMemberRepository.existsByProjectIdAndUserId(projectId, issueCreateRequest.getAssigneeId())){
+                && !projectMemberRepository.existsByProjectIdAndUserId(projectId, issueCreateRequest.getAssigneeId())) {
             throw new InvalidRequestDataException("Assignee must be a project member");
         }
 
@@ -85,7 +86,7 @@ public class IssueService {
                 .build();
 
         try {
-            Issue saved =  issueRepository.saveAndFlush(issue);
+            Issue saved = issueRepository.saveAndFlush(issue);
             return IssueResponse.from(saved);
         } catch (DataIntegrityViolationException e) {
             throw new DuplicateEntityParamException("Cannot create same issue");
@@ -121,11 +122,11 @@ public class IssueService {
         Issue issue = issueRepository.findByIdAndProjectId(issueId, projectId).orElseThrow(
                 () -> new IssueNotFoundException(issueId));
 
-        if (member.getRole() == ProjectRole.VIEWER){
+        if (member.getRole() == ProjectRole.VIEWER) {
             throw new IssueAccessDeniedException(userId, projectId);
         }
 
-        if (!Objects.equals(issue.getReporterId(), userId) && member.getRole() != ProjectRole.OWNER){
+        if (!Objects.equals(issue.getReporterId(), userId) && member.getRole() != ProjectRole.OWNER) {
             throw new IssueAccessDeniedException(userId, projectId);
         }
 
@@ -140,11 +141,11 @@ public class IssueService {
         Issue issue = issueRepository.findByIdAndProjectId(issueId, projectId).orElseThrow(
                 () -> new IssueNotFoundException(issueId));
 
-        if (member.getRole() == ProjectRole.VIEWER){
+        if (member.getRole() == ProjectRole.VIEWER) {
             throw new IssueAccessDeniedException(userId, projectId);
         }
 
-        if (!Objects.equals(issue.getReporterId(), userId) && member.getRole() != ProjectRole.OWNER){
+        if (!Objects.equals(issue.getReporterId(), userId) && member.getRole() != ProjectRole.OWNER) {
             throw new IssueAccessDeniedException(userId, projectId);
         }
 
@@ -176,4 +177,79 @@ public class IssueService {
         return IssueResponse.from(issueRepository.saveAndFlush(issue));
     }
 
+    @Transactional
+    public IssueResponse moveIssue(Long userId, Long projectId, Long issueId, IssueMoveRequest request) {
+
+        boardRepository.findByProjectIdForUpdate(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        BoardColumn targetColumn = boardColumnRepository.findByIdAndProjectId(request.getColumnId(), projectId)
+                .orElseThrow(() -> new InvalidRequestDataException("Column not found"));
+
+
+
+        ProjectMember member = projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        Issue targetIssue = issueRepository.findByIdAndProjectId(issueId, projectId).orElseThrow(
+                () -> new IssueNotFoundException(issueId));
+
+        boolean sameColumn = Objects.equals(targetIssue.getColumnId(), targetColumn.getId());
+
+        List<Issue> issues = issueRepository.findAllByProjectIdAndColumnIdOrderByPositionAsc(projectId, request.getColumnId());
+
+
+        Integer targetPosition = request.getPosition();
+
+        if (member.getRole() == ProjectRole.VIEWER) {
+            throw new IssueAccessDeniedException(userId, projectId);
+        }
+
+        if (!Objects.equals(targetIssue.getReporterId(), userId) && member.getRole() != ProjectRole.OWNER) {
+            throw new IssueAccessDeniedException(userId, projectId);
+        }
+
+        int maxPosition = sameColumn ? issues.size() : issues.size() + 1;
+
+        if (targetPosition < 1 || targetPosition > maxPosition) {
+            throw new InvalidRequestDataException("Target position is out of range");
+        }
+
+
+        // if move to different column flow
+        if (sameColumn) {
+
+            issues.removeIf(issue -> issue.getId().equals(targetIssue.getId()));
+        } else {
+            List<Issue> sourceColumnIssues = issueRepository.findAllByProjectIdAndColumnIdOrderByPositionAsc(
+                    projectId,
+                    targetIssue.getColumnId()
+            );
+
+            sourceColumnIssues.removeIf(issue -> issue.getId().equals(targetIssue.getId()));
+            recalculateColumn(sourceColumnIssues);
+
+            targetIssue.setColumnId(targetColumn.getId());
+        }
+        issues.add(targetPosition - 1, targetIssue);
+        recalculateColumn(issues);
+
+        targetIssue.setUpdatedAt(Instant.now());
+
+        return IssueResponse.from(targetIssue);
+    }
+
+
+    private void recalculateColumn(List<Issue> issues) {
+
+        for (int i = 0; i < issues.size(); i++) {
+            issues.get(i).setPosition(-(i + 1));
+        }
+
+        issueRepository.flush();
+
+        for (int i = 0; i < issues.size(); i++) {
+            issues.get(i).setPosition((i + 1));
+        }
+    }
 }

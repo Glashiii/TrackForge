@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.glashiii.projectcoreservice.issues.dto.IssueCreateRequest;
+import ru.glashiii.projectcoreservice.issues.dto.IssueMoveRequest;
 import ru.glashiii.projectcoreservice.issues.dto.IssueResponse;
 import ru.glashiii.projectcoreservice.issues.dto.IssueUpdateRequest;
 import ru.glashiii.projectcoreservice.security.CurrentUserProvider;
@@ -61,6 +62,18 @@ public class IssueController {
     ) {
         Long currentUserId = currentUserProvider.getCurrentUserId();
         IssueResponse issueResponse = issueService.updateIssue(currentUserId, projectId, issueId, request);
+
+        return ResponseEntity.ok(issueResponse);
+    }
+
+    @PatchMapping("/{issueId}/move")
+    public ResponseEntity<IssueResponse> moveIssue(
+            @PathVariable Long projectId,
+            @PathVariable Long issueId,
+            @Valid @RequestBody IssueMoveRequest request
+    ) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        IssueResponse issueResponse = issueService.moveIssue(currentUserId, projectId, issueId, request);
 
         return ResponseEntity.ok(issueResponse);
     }
