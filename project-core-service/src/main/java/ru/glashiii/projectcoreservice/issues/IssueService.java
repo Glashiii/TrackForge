@@ -130,7 +130,16 @@ public class IssueService {
             throw new IssueAccessDeniedException(userId, projectId);
         }
 
+        boardRepository.findByProjectIdForUpdate(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
         issueRepository.delete(issue);
+        issueRepository.flush();
+
+        List<Issue> issues = issueRepository.findAllByProjectIdAndColumnIdOrderByPositionAsc(projectId, issue.getColumnId());
+
+        recalculateColumn(issues);
+
     }
 
     @Transactional
