@@ -1,121 +1,126 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
+import { useAuthStore } from './shared/store/auth-store'
+import { useUiStore } from './shared/store/ui-store'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { user, isAuthenticated, setTokens, setUser, clearSession } = useAuthStore()
+  const {
+    isProjectCreateOpen,
+    isIssueCreateOpen,
+    isIssueDetailsOpen,
+    selectedIssueId,
+    setProjectCreateOpen,
+    setIssueCreateOpen,
+    openIssueDetails,
+    closeIssueDetails,
+  } = useUiStore()
+
+  const seedDemoSession = () => {
+    setTokens({
+      accessToken: 'demo-access-token',
+      refreshToken: 'demo-refresh-token',
+    })
+    setUser({
+      id: 1,
+      email: 'demo@taskforge.local',
+      name: 'Demo User',
+      roles: 'ROLE_USER',
+    })
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
+    <main className="app-shell">
+      <section className="app-header">
         <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
+          <p className="eyebrow">Frontend scaffold</p>
+          <h1>TaskForge state layer</h1>
+          <p className="description">
+            Zustand is installed and wired for auth and UI state. Keep API data in
+            TanStack Query later.
           </p>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
+        <div className="header-actions">
+          <button type="button" className="secondary-button" onClick={seedDemoSession}>
+            Seed auth state
+          </button>
+          <button type="button" className="primary-button" onClick={clearSession}>
+            Clear session
+          </button>
         </div>
       </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <section className="panel-grid">
+        <article className="panel">
+          <div className="panel-heading">
+            <h2>Auth store</h2>
+            <span className={isAuthenticated ? 'status status-active' : 'status'}>
+              {isAuthenticated ? 'Authenticated' : 'Guest'}
+            </span>
+          </div>
+          <dl className="details-list">
+            <div>
+              <dt>User</dt>
+              <dd>{user?.name ?? 'Not loaded'}</dd>
+            </div>
+            <div>
+              <dt>Email</dt>
+              <dd>{user?.email ?? 'Not loaded'}</dd>
+            </div>
+            <div>
+              <dt>Role</dt>
+              <dd>{user?.roles ?? 'Not loaded'}</dd>
+            </div>
+          </dl>
+        </article>
+
+        <article className="panel">
+          <div className="panel-heading">
+            <h2>UI store</h2>
+            <span className="status">Shared client state</span>
+          </div>
+          <div className="button-row">
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => setProjectCreateOpen(!isProjectCreateOpen)}
+            >
+              Toggle project modal
+            </button>
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => setIssueCreateOpen(!isIssueCreateOpen)}
+            >
+              Toggle issue modal
+            </button>
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => openIssueDetails(42)}
+            >
+              Open issue drawer
+            </button>
+            <button type="button" className="secondary-button" onClick={closeIssueDetails}>
+              Close issue drawer
+            </button>
+          </div>
+          <dl className="details-list">
+            <div>
+              <dt>Create project</dt>
+              <dd>{isProjectCreateOpen ? 'Open' : 'Closed'}</dd>
+            </div>
+            <div>
+              <dt>Create issue</dt>
+              <dd>{isIssueCreateOpen ? 'Open' : 'Closed'}</dd>
+            </div>
+            <div>
+              <dt>Issue details</dt>
+              <dd>{isIssueDetailsOpen ? `Open for #${selectedIssueId}` : 'Closed'}</dd>
+            </div>
+          </dl>
+        </article>
+      </section>
+    </main>
   )
 }
 
