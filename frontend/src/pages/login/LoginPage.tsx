@@ -45,10 +45,10 @@ export default function LoginPage() {
             <h1 className="font-bold text-2xl my-5">TrackForge</h1>
             <form className="flex flex-col "
                   onSubmit={handleSubmit}>
-                <label htmlFor={"email"}>Email</label>
-                <input id="email" type="email" onChange={(e) => setEmail(e.target.value)} value={email} required />
-                <label htmlFor={"password"}>Password</label>
-                <input id="password" type="password" onChange={(e) => setPassword(e.target.value)} value={password} required />
+                <label htmlFor={"email"}>Email:</label>
+                <input className="border rounded-1" id="email" type="email" onChange={(e) => setEmail(e.target.value)} value={email} required />
+                <label htmlFor={"password"}>Password:</label>
+                <input className="border rounded-1" id="password" type="password" onChange={(e) => setPassword(e.target.value)} value={password} required />
                 <button className="self-center text-white bg-blue-400 hover:bg-blue-500 duration-150 mt-2 w-30
                     rounded-2xl"
                     type="submit" disabled={isSubmitting}>{isSubmitting ? "Logging in" : "Login"}</button>
