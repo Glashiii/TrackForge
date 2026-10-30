@@ -41,15 +41,17 @@ export default function LoginPage() {
     }
 
     return (
-        <>
-            <h1>Login page</h1>
-            {/*create a submit function*/}
-            <form onSubmit={handleSubmit}>
+        <div className="container h-full flex flex-col items-center justify-center pb-15">
+            <h1 className="font-bold text-2xl my-5">TrackForge</h1>
+            <form className="flex flex-col "
+                  onSubmit={handleSubmit}>
                 <label htmlFor={"email"}>Email</label>
                 <input id="email" type="email" onChange={(e) => setEmail(e.target.value)} value={email} required />
                 <label htmlFor={"password"}>Password</label>
                 <input id="password" type="password" onChange={(e) => setPassword(e.target.value)} value={password} required />
-                <button type="submit" disabled={isSubmitting}>{isSubmitting ? "Logging in" : "Login"}</button>
+                <button className="self-center text-white bg-blue-400 hover:bg-blue-500 duration-150 mt-2 w-30
+                    rounded-2xl"
+                    type="submit" disabled={isSubmitting}>{isSubmitting ? "Logging in" : "Login"}</button>
             </form>
 
 
@@ -57,6 +59,6 @@ export default function LoginPage() {
             {error && <p role="alert">{error}</p>}
             {isLoggedIn && <p>Logged In</p>}
 
-        </>
+        </div>
     )
 }
