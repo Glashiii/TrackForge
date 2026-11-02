@@ -2,6 +2,7 @@ import type {AuthResponse} from "../api/types/auth.ts";
 import {create} from "zustand/react";
 import {clearTokens, readTokens, saveTokens} from "./token-storage.ts";
 import {refreshSession} from "../api/auth-api.ts";
+import {queryClient} from "../api/query-client.ts";
 
 type SessionStore = {
     tokens: AuthResponse | null;
@@ -27,6 +28,7 @@ export const useSessionStore = create<SessionStore>()((set, get) => ({
         },
         clearSession: () => {
             clearTokens()
+            queryClient.clear()
             set({
                 tokens: null,
                 status: 'anonymous'
