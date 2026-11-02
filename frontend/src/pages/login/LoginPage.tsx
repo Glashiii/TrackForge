@@ -1,6 +1,7 @@
 import {login} from "../../shared/api/auth-api.ts"
 import {type FormEvent, useState} from "react";
 import {useSessionStore} from "../../shared/auth/session-store.ts";
+import {Navigate} from "react-router";
 
 export default function LoginPage() {
 
@@ -8,8 +9,8 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const setSession = useSessionStore((state) => state.setSession)
+    const status = useSessionStore((state) => state.status)
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -18,12 +19,10 @@ export default function LoginPage() {
 
         setIsSubmitting(true);
         setError(null);
-        setIsLoggedIn(false);
 
         try {
             const response = await login({email, password});
             setSession(response);
-            setIsLoggedIn(true);
             setPassword('');
 
         }
@@ -38,6 +37,12 @@ export default function LoginPage() {
         finally {
             setIsSubmitting(false);
         }
+    }
+
+    if (status === "authenticated") {
+        return (
+            <Navigate to="/projects" replace></Navigate>
+        )
     }
 
     return (
@@ -57,8 +62,6 @@ export default function LoginPage() {
 
 
             {error && <p role="alert">{error}</p>}
-            {isLoggedIn && <p>Logged In</p>}
-
         </div>
     )
 }
