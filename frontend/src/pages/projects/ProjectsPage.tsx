@@ -5,13 +5,14 @@ import {getProjects} from "../../shared/api/project-api.ts";
 import CreateProjectForm from "./CreateProjectForm.tsx";
 import {useState} from "react";
 import Modal from "../../shared/ui/Modal.tsx";
+import UpdateProjectForm from "./UpdateProjectForm.tsx";
 
 export default function ProjectsPage() {
 
     const status = useSessionStore((state) => state.status)
     const accessToken = useSessionStore((state) => state.tokens?.accessToken)
     const [isCreateOpen, setIsCreateOpen] = useState(false);
-
+    const [editingProjectId, setEditingProjectId] = useState<number | null>(null);
 
     const projectsQuery = useQuery({
         queryKey: ["projects"],
@@ -23,6 +24,10 @@ export default function ProjectsPage() {
         },
         enabled: Boolean(status === "authenticated" && accessToken),
     });
+
+    const editingProject = projectsQuery.data?.find(
+        (project) => project.id === editingProjectId,
+    )
 
 
     return (
@@ -40,6 +45,7 @@ export default function ProjectsPage() {
                     <div key={project.id}>
                         <h3>{project.name}</h3>
                         <Link to={`/projects/${project.id}`}>Go to project {project.name}</Link>
+                        <button onClick={() => {setEditingProjectId(project.id)}}>Update</button>
                     </div>
                 ))
             )}
@@ -53,8 +59,23 @@ export default function ProjectsPage() {
                 onClose={() => setIsCreateOpen(false)}
                 title="Create project"
             >
-                <CreateProjectForm onCreated={() => setIsCreateOpen(false)} />
+                <CreateProjectForm onCreated={() => setIsCreateOpen(false)}/>
             </Modal>
+
+
+            {editingProject && (
+                <Modal
+                    open={editingProjectId !== null}
+                    onClose={() => setEditingProjectId(null)}
+                    title={"Update project"}>
+                    <UpdateProjectForm
+                        // key is not mandatory, because 'open' is unmounting form
+                        key={editingProject?.id}
+                        project={editingProject}
+                        onUpdated={() => setEditingProjectId(null)}/>
+                </Modal>
+            )}
+
 
         </>
     )

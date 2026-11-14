@@ -1,4 +1,4 @@
-import type {ProjectCreateRequest, ProjectResponse} from "./types/project.ts";
+import type {ProjectCreateRequest, ProjectResponse, ProjectUpdateRequest} from "./types/project.ts";
 import {apiFetch} from "./http.ts";
 
 export async function getProjects(accessToken: string): Promise<ProjectResponse[]> {
@@ -18,6 +18,18 @@ export async function createProject(request: ProjectCreateRequest, accessToken: 
         method: "POST",
         headers: {
             Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(request),
+    });
+
+    return response.json();
+}
+
+export async function updateProject(projectId: number, request: ProjectUpdateRequest, accessToken: string): Promise<ProjectResponse> {
+    const response = await apiFetch(`/projects/${projectId}`, {
+        method: "PATCH",
+        headers: {
+            authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(request),
     });
