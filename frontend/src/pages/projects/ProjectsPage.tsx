@@ -51,7 +51,7 @@ export default function ProjectsPage() {
             <Modal
                 open={isCreateOpen}
                 onClose={() => setIsCreateOpen(false)}
-                title="Создание проекта"
+                title="Create project"
             >
                 <CreateProjectForm onCreated={() => setIsCreateOpen(false)} />
             </Modal>
