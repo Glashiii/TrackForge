@@ -82,7 +82,7 @@ export default function CreateProjectForm({onCreated}: CreateProjectFormProps) {
     return (
         <div>
             <form className={"flex flex-col"} onSubmit={handleSubmit}>
-                <input id="projectName" type="text" value={projectName} required placeholder={"Name"}
+                <input id="projectName" type="text" value={projectName} maxLength={100} required placeholder={"Name"}
                        onChange={(e) => setProjectName(e.target.value)}/>
                 <input id="projectKey" type="text" value={projectKey} required placeholder={"Key"}
                        onChange={(e) => setProjectKey(e.target.value)}/>
