@@ -2,11 +2,16 @@ import {Link} from "react-router";
 import {useSessionStore} from "../../shared/auth/session-store.ts";
 import {useQuery} from "@tanstack/react-query";
 import {getProjects} from "../../shared/api/project-api.ts";
+import CreateProjectForm from "./CreateProjectForm.tsx";
+import {useState} from "react";
+import Modal from "../../shared/ui/Modal.tsx";
 
 export default function ProjectsPage() {
 
     const status = useSessionStore((state) => state.status)
     const accessToken = useSessionStore((state) => state.tokens?.accessToken)
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
+
 
     const projectsQuery = useQuery({
         queryKey: ["projects"],
@@ -18,6 +23,7 @@ export default function ProjectsPage() {
         },
         enabled: Boolean(status === "authenticated" && accessToken),
     });
+
 
     return (
         <>
@@ -37,6 +43,18 @@ export default function ProjectsPage() {
                     </div>
                 ))
             )}
+
+            <button type="button" onClick={() => setIsCreateOpen(true)}>
+                Создать проект
+            </button>
+
+            <Modal
+                open={isCreateOpen}
+                onClose={() => setIsCreateOpen(false)}
+                title="Создание проекта"
+            >
+                <CreateProjectForm onCreated={() => setIsCreateOpen(false)} />
+            </Modal>
 
         </>
     )
