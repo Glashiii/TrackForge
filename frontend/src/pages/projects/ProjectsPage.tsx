@@ -1,4 +1,4 @@
-import {Link} from "react-router";
+
 import {useSessionStore} from "../../shared/auth/session-store.ts";
 import {useQuery} from "@tanstack/react-query";
 import {getProjects} from "../../shared/api/project-api.ts";
@@ -6,6 +6,7 @@ import CreateProjectForm from "./CreateProjectForm.tsx";
 import {useState} from "react";
 import Modal from "../../shared/ui/Modal.tsx";
 import UpdateProjectForm from "./UpdateProjectForm.tsx";
+import ProjectCard from "../../shared/ui/ProjectCard.tsx";
 
 export default function ProjectsPage() {
 
@@ -31,24 +32,29 @@ export default function ProjectsPage() {
 
 
     return (
-        <>
-            <h1>Projects page</h1>
+        <div className="flex-col">
+            <h1>Projects</h1>
 
-            {projectsQuery.isPending ? (
-                <p>Projects are loading...</p>
-            ) : projectsQuery.isError ? (
-                <p>{projectsQuery.error.message}</p>
-            ) : projectsQuery.data.length === 0 ? (
-                <p>No projects yet</p>
-            ) : (
-                projectsQuery.data.map((project) => (
-                    <div key={project.id}>
-                        <h3>{project.name}</h3>
-                        <Link to={`/projects/${project.id}`}>Go to project {project.name}</Link>
-                        <button onClick={() => {setEditingProjectId(project.id)}}>Update</button>
-                    </div>
-                ))
-            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2">
+                {projectsQuery.isPending ? (
+                    <p>Projects are loading...</p>
+                ) : projectsQuery.isError ? (
+                    <p>{projectsQuery.error.message}</p>
+                ) : projectsQuery.data.length === 0 ? (
+                    <p>No projects yet</p>
+                ) : (
+                    projectsQuery.data.map((project) => (
+                        // <div key={project.id} className="border-2">
+                        //     <h3>{project.name}</h3>
+                        //     <Link to={`/projects/${project.id}`}>Go to project {project.name}</Link>
+                        //     <button onClick={() => {setEditingProjectId(project.id)}}>Update</button>
+                        // </div>
+                        <ProjectCard project={project} setId={() => setEditingProjectId(project.id)}/>
+                    ))
+                )}
+            </div>
+
 
             <button type="button" onClick={() => setIsCreateOpen(true)}>
                 Создать проект
@@ -77,6 +83,6 @@ export default function ProjectsPage() {
             )}
 
 
-        </>
+        </div>
     )
 }
