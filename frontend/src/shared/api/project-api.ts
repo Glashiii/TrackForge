@@ -47,3 +47,14 @@ export async function getProjectById(projectId: number, accessToken: string): Pr
 
     return response.json();
 }
+
+export async function deleteProject(projectId: number, accessToken: string): Promise<void> {
+    await apiFetch(`/projects/${projectId}`, {
+        method: "DELETE",
+        headers: {
+            authorization: `Bearer ${accessToken}`,
+        }
+    })
+
+    return;
+}
