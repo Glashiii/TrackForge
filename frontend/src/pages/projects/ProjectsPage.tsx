@@ -45,11 +45,6 @@ export default function ProjectsPage() {
                     <p>No projects yet</p>
                 ) : (
                     projectsQuery.data.map((project) => (
-                        // <div key={project.id} className="border-2">
-                        //     <h3>{project.name}</h3>
-                        //     <Link to={`/projects/${project.id}`}>Go to project {project.name}</Link>
-                        //     <button onClick={() => {setEditingProjectId(project.id)}}>Update</button>
-                        // </div>
                         <ProjectCard project={project} setId={() => setEditingProjectId(project.id)}/>
                     ))
                 )}
@@ -57,7 +52,7 @@ export default function ProjectsPage() {
 
 
             <button type="button" onClick={() => setIsCreateOpen(true)}>
-                Создать проект
+                Create project
             </button>
 
             <Modal

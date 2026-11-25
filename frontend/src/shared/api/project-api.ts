@@ -36,3 +36,14 @@ export async function updateProject(projectId: number, request: ProjectUpdateReq
 
     return response.json();
 }
+
+export async function getProjectById(projectId: number, accessToken: string): Promise<ProjectResponse> {
+    const response = await apiFetch(`/projects/${projectId}`, {
+        method: "GET",
+        headers: {
+            authorization: `Bearer ${accessToken}`,
+        }
+    })
+
+    return response.json();
+}
